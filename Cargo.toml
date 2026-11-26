@@ -1,6 +1,6 @@
 [package]
 name = "tanca-mcp"
-version = "1.0.0"
+version = "0.1.0"
 edition = "2024"
 description = "MCP server and CLI for the Tanca HR API"
 repository = "https://github.com/nguyenvanduocit/tanca-mcp"
