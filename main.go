@@ -22,36 +22,36 @@ func main() {
 	// Load environment file if specified
 	if *envFile != "" {
 		if err := godotenv.Load(*envFile); err != nil {
-			fmt.Printf("Warning: Error loading env file %s: %v\n", *envFile, err)
+			fmt.Fprintf(os.Stderr, "Warning: Error loading env file %s: %v\n", *envFile, err)
 		} else {
-			fmt.Printf("Loaded environment variables from %s\n", *envFile)
+			fmt.Fprintf(os.Stderr, "Loaded environment variables from %s\n", *envFile)
 		}
 	}
 
 	// Check required environment variables
 	if os.Getenv("TANCA_TOKEN") == "" {
-		fmt.Println("Configuration Error: Missing TANCA_TOKEN")
-		fmt.Println()
-		fmt.Println("Setup Instructions:")
-		fmt.Println("1. Get your Tanca API token from Tanca admin panel")
-		fmt.Println("2. Set the environment variable:")
-		fmt.Println()
-		fmt.Println("   Option A - Using .env file:")
-		fmt.Println("   TANCA_TOKEN=Bearer your-token-here")
-		fmt.Println("   TANCA_SHOP_ID=your-shop-id (optional, auto-fetched)")
-		fmt.Println("   TANCA_BRANCH_ID=your-branch-id (optional)")
-		fmt.Println()
-		fmt.Println("   Option B - Using environment variables:")
-		fmt.Println("   export TANCA_TOKEN=\"Bearer your-token-here\"")
-		fmt.Println()
+		fmt.Fprintln(os.Stderr, "Configuration Error: Missing TANCA_TOKEN")
+		fmt.Fprintln(os.Stderr)
+		fmt.Fprintln(os.Stderr, "Setup Instructions:")
+		fmt.Fprintln(os.Stderr, "1. Get your Tanca API token from Tanca admin panel")
+		fmt.Fprintln(os.Stderr, "2. Set the environment variable:")
+		fmt.Fprintln(os.Stderr)
+		fmt.Fprintln(os.Stderr, "   Option A - Using .env file:")
+		fmt.Fprintln(os.Stderr, "   TANCA_TOKEN=Bearer your-token-here")
+		fmt.Fprintln(os.Stderr, "   TANCA_SHOP_ID=your-shop-id (optional, auto-fetched)")
+		fmt.Fprintln(os.Stderr, "   TANCA_BRANCH_ID=your-branch-id (optional)")
+		fmt.Fprintln(os.Stderr)
+		fmt.Fprintln(os.Stderr, "   Option B - Using environment variables:")
+		fmt.Fprintln(os.Stderr, "   export TANCA_TOKEN=\"Bearer your-token-here\"")
+		fmt.Fprintln(os.Stderr)
 		os.Exit(1)
 	}
 
-	fmt.Println("TANCA_TOKEN is set")
+	fmt.Fprintln(os.Stderr, "TANCA_TOKEN is set")
 	if shopID := os.Getenv("TANCA_SHOP_ID"); shopID != "" {
-		fmt.Printf("Shop ID: %s\n", shopID)
+		fmt.Fprintf(os.Stderr, "Shop ID: %s\n", shopID)
 	} else {
-		fmt.Println("Shop ID: (will be auto-fetched)")
+		fmt.Fprintln(os.Stderr, "Shop ID: (will be auto-fetched)")
 	}
 
 	mcpServer := server.NewMCPServer(
