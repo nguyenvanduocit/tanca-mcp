@@ -1,0 +1,15 @@
+# Build outputs
+/bin/
+/dist/
+/cli
+/tanca-mcp
+/tanca-cli
+
+# Local environment and tools
+.env
+.env.*
+!.env.example
+.omc/
+.idea/
+.vscode/
+.DS_Store
