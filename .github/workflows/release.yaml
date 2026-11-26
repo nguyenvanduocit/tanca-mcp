@@ -27,8 +27,8 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
+      release_created: ${{ steps.release.outputs.release_created || steps.release_after_merge.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name || steps.release_after_merge.outputs.tag_name }}
     steps:
       - uses: googleapis/release-please-action@v4
         id: release
@@ -37,10 +37,21 @@ jobs:
           release-type: rust
 
       - name: Auto-merge release PR
+        id: merge
         if: ${{ steps.release.outputs.pr }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh pr merge --squash "${{ fromJson(steps.release.outputs.pr).number }}"
+        run: gh pr merge --squash --repo "${{ github.repository }}" "${{ fromJson(steps.release.outputs.pr).number }}"
+
+      # A merge made with GITHUB_TOKEN does not trigger another workflow run,
+      # so create the release for the merged PR in this run.
+      - uses: googleapis/release-please-action@v4
+        id: release_after_merge
+        if: ${{ steps.merge.outcome == 'success' }}
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: rust
+          skip-github-pull-request: true
 
   goreleaser:
     needs: release-please
@@ -52,6 +63,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: ${{ needs.release-please.outputs.tag_name }}
           fetch-depth: 0
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
