@@ -1,8 +1,16 @@
 build:
-    go build ./...
+    cargo build --release
 
 build-cli:
-    go build -o tanca-cli ./cmd/tanca-cli/
+    cargo build --release --bin tanca-cli
 
 install-cli:
-    go install ./cmd/tanca-cli/
+    cargo install --path . --bin tanca-cli
+
+test:
+    cargo test
+
+check:
+    cargo fmt --check
+    cargo clippy --all-targets -- -D warnings
+    cargo test

@@ -4,14 +4,14 @@ Tra cứu nhân viên, lịch ca, nhật ký chấm công và đề xuất trên
 
 ## Cài đặt từ mã nguồn
 
-Cần Git và Go 1.23.2 trở lên. Chạy các lệnh sau trong terminal trên macOS hoặc Linux.
+Cần Git và Rust bản stable (cài qua [rustup](https://rustup.rs)). Chạy các lệnh sau trong terminal trên macOS hoặc Linux.
 
 ```sh
 git clone https://github.com/nguyenvanduocit/tanca-mcp.git
 cd tanca-mcp
+cargo build --release
 mkdir -p bin
-go build -o bin/tanca-cli ./cmd/tanca-cli
-go build -o bin/tanca-mcp .
+cp target/release/tanca-cli target/release/tanca-mcp bin/
 ./bin/tanca-cli help
 ```
 
@@ -102,9 +102,9 @@ Chế độ HTTP lắng nghe trên mọi interface và dùng chung token Tanca c
 ## Kiểm tra khi phát triển
 
 ```sh
-go test ./...
-go vet ./...
-go build ./...
+cargo fmt --check
+cargo clippy --all-targets -- -D warnings
+cargo test
 ```
 
-Mã gọi API nằm trong `services/`, các tool MCP trong `tools/` và CLI trong `cmd/tanca-cli/`.
+Mã gọi API nằm trong `src/services/`, các tool MCP trong `src/tools/`, phần định dạng kết quả dùng chung trong `src/format.rs`, server MCP trong `src/main.rs` và CLI trong `src/bin/tanca-cli.rs`. Kiểm thử với API giả lập nằm trong `tests/`.

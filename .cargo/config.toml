@@ -1,0 +1,4 @@
+# Windows arm64 is cross-compiled with cargo-zigbuild; the prebuilt std for
+# this target needs zig's libunwind for the _Unwind_* symbols.
+[target.aarch64-pc-windows-gnullvm]
+rustflags = ["-C", "link-arg=-lunwind"]

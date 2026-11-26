@@ -11,7 +11,20 @@ permissions:
 
 jobs:
 
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets --locked -- -D warnings
+      - run: cargo test --locked
+
   release-please:
+    needs: test
     runs-on: ubuntu-latest
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
@@ -21,7 +34,7 @@ jobs:
         id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          release-type: go
+          release-type: rust
 
       - name: Auto-merge release PR
         if: ${{ steps.release.outputs.pr }}
@@ -32,19 +45,27 @@ jobs:
   goreleaser:
     needs: release-please
     if: ${{ needs.release-please.outputs.release_created }}
-    runs-on: ubuntu-latest
+    # macOS runner: the Apple targets link against the macOS SDK; the Linux
+    # (musl) and Windows targets (x86_64 and arm64) are cross-compiled with cargo-zigbuild.
+    runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Set up Go
-        uses: actions/setup-go@v5
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-musl,aarch64-unknown-linux-musl,x86_64-apple-darwin,aarch64-apple-darwin,x86_64-pc-windows-gnu,aarch64-pc-windows-gnullvm
+      - name: Set up Zig
+        uses: mlugg/setup-zig@v2
+      - name: Install cargo-zigbuild
+        run: cargo install --locked cargo-zigbuild
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
-          version: latest
+          version: "~> v2"
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

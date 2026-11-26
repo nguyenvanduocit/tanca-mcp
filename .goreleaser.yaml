@@ -2,38 +2,34 @@ version: 2
 
 before:
   hooks:
-    - go mod tidy
+    - cargo fetch --locked
 
 builds:
   - id: tanca-mcp
-    main: .
+    builder: rust
     binary: tanca-mcp
-    env:
-      - CGO_ENABLED=0
-    goos:
-      - linux
-      - darwin
-      - windows
-    goarch:
-      - amd64
-      - arm64
-    ldflags:
-      - -s -w -X main.version={{.Version}}
+    command: zigbuild
+    flags:
+      - --release
+      - --locked
+      - --bin=tanca-mcp
+    targets: &targets
+      - x86_64-unknown-linux-musl
+      - aarch64-unknown-linux-musl
+      - x86_64-apple-darwin
+      - aarch64-apple-darwin
+      - x86_64-pc-windows-gnu
+      - aarch64-pc-windows-gnullvm
 
   - id: tanca-cli
-    main: ./cmd/tanca-cli
+    builder: rust
     binary: tanca-cli
-    env:
-      - CGO_ENABLED=0
-    goos:
-      - linux
-      - darwin
-      - windows
-    goarch:
-      - amd64
-      - arm64
-    ldflags:
-      - -s -w -X main.version={{.Version}}
+    command: zigbuild
+    flags:
+      - --release
+      - --locked
+      - --bin=tanca-cli
+    targets: *targets
 
 archives:
   - name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
@@ -48,9 +44,8 @@ checksum:
   name_template: "checksums.txt"
 
 brews:
+  # One archive per platform holds both binaries; each formula installs one.
   - name: tanca-mcp
-    ids:
-      - tanca-mcp
     repository:
       owner: nguyenvanduocit
       name: homebrew-tap
@@ -61,8 +56,6 @@ brews:
       bin.install "tanca-mcp"
 
   - name: tanca-cli
-    ids:
-      - tanca-cli
     repository:
       owner: nguyenvanduocit
       name: homebrew-tap

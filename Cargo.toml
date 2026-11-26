@@ -1,0 +1,35 @@
+[package]
+name = "tanca-mcp"
+version = "1.0.0"
+edition = "2024"
+description = "MCP server and CLI for the Tanca HR API"
+repository = "https://github.com/nguyenvanduocit/tanca-mcp"
+publish = false
+
+[lib]
+name = "tanca"
+path = "src/lib.rs"
+
+[[bin]]
+name = "tanca-mcp"
+path = "src/main.rs"
+
+[[bin]]
+name = "tanca-cli"
+path = "src/bin/tanca-cli.rs"
+
+[dependencies]
+anyhow = "1"
+axum = "0.8"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+dotenvy = "0.15"
+fastrand = "2"
+reqwest = { version = "0.13", default-features = false, features = ["multipart", "rustls"] }
+rmcp = { version = "3.11", features = ["server", "transport-io", "transport-streamable-http-server"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time", "net", "sync"] }
+
+[profile.release]
+strip = true
+lto = "thin"
